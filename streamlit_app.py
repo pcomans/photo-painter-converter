@@ -2,6 +2,10 @@ import streamlit as st
 import os.path
 from io import BytesIO
 from PIL import Image, ImagePalette, ImageOps
+import tempfile
+import pathlib
+import shutil
+
 
 THUMBNAIL_SIZE = (400, 400) 
 
@@ -10,12 +14,17 @@ PAL_IMAGE = Image.new("P", (1,1))
 PAL_IMAGE.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
 
 DISPLAY_DITHER = Image.Dither(Image.FLOYDSTEINBERG)
-    
 
 st.title("🎈 My new app")
 st.write(
     "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
 )
+
+temp_dir = tempfile.TemporaryDirectory()
+temp_pic_dir = temp_dir.name + "/pic"
+os.mkdir(temp_pic_dir)
+
+st.write(temp_dir.name)
 
 uploaded_files = st.file_uploader("Upload your photos", type=['png', 'jpg', 'gif', 'bmp', 'tiff'], accept_multiple_files=True)
 for uploaded_file in uploaded_files:
@@ -72,7 +81,30 @@ for uploaded_file in uploaded_files:
 
     with col3:
         st.download_button(
-            label="Download",
+            label="Download photo",
             data=byte_data,
             file_name=output_filename
         )
+
+    uploaded_file_path = pathlib.Path(temp_pic_dir) / output_filename
+    st.write(uploaded_file_path)
+    with open(uploaded_file_path, 'wb') as output_temporary_file:
+        output_temporary_file.write(byte_data)
+
+archive_file = None
+with tempfile.TemporaryDirectory() as zip_dir:
+    archive_file = shutil.make_archive(zip_dir + "/all", 'zip', temp_dir.name)
+    st.write(archive_file)
+
+    if os.path.exists(archive_file):
+        with open(archive_file, 'rb') as archive_binary_file:
+            st.download_button(
+                label="Download all",
+                data=archive_binary_file.read(),
+                file_name="all.zip"
+            )
+    else:
+        st.write("Upload one or more photos to get started!")
+
+# Cleanup temporary directory
+temp_dir.cleanup()
