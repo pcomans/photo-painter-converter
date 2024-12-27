@@ -2,10 +2,12 @@ import streamlit as st
 import os.path
 from io import BytesIO
 from PIL import Image, ImagePalette, ImageOps
+from pi_heif import register_heif_opener
 import tempfile
 import pathlib
 import shutil
 
+register_heif_opener()
 
 THUMBNAIL_SIZE = (400, 400) 
 
@@ -26,7 +28,7 @@ os.mkdir(temp_pic_dir)
 
 st.write(temp_dir.name)
 
-uploaded_files = st.file_uploader("Upload your photos", type=['png', 'jpg', 'gif', 'bmp', 'tiff'], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload your photos", type=['png', 'jpg', 'gif', 'bmp', 'tiff', 'heic'], accept_multiple_files=True)
 for uploaded_file in uploaded_files:
     input_image = Image.open(BytesIO(uploaded_file.getbuffer()))
     
