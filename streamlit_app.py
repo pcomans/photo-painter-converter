@@ -7,8 +7,6 @@ import tempfile
 import pathlib
 import shutil
 
-register_heif_opener()
-
 THUMBNAIL_SIZE = (400, 400) 
 
 # Create a palette object
@@ -16,6 +14,10 @@ PAL_IMAGE = Image.new("P", (1,1))
 PAL_IMAGE.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
 
 DISPLAY_DITHER = Image.Dither(Image.FLOYDSTEINBERG)
+
+SUPPORTED_FILETYPES = ['png', 'jpg', 'gif', 'bmp', 'tiff', 'heic']
+# Support HEIC in Pillow
+register_heif_opener()
 
 st.title("🎈 My new app")
 st.write(
@@ -28,7 +30,7 @@ os.mkdir(temp_pic_dir)
 
 st.write(temp_dir.name)
 
-uploaded_files = st.file_uploader("Upload your photos", type=['png', 'jpg', 'gif', 'bmp', 'tiff', 'heic'], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload your photos", type=SUPPORTED_FILETYPES, accept_multiple_files=True)
 for uploaded_file in uploaded_files:
     input_image = Image.open(BytesIO(uploaded_file.getbuffer()))
     
